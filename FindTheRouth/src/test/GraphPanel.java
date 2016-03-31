@@ -8,6 +8,8 @@ package test;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JPanel;
 
 /**
@@ -19,8 +21,11 @@ public class GraphPanel extends JPanel {
     public GraphPanel() {
         arrCircleIndex = new ArrayList<CircleIndex>();
         arrCircleLines = new ArrayList<CircleLine>();
+        arrCircleDistrubLines = new ArrayList<CircleLine>();
+        arrRouteLines = new ArrayList<CircleLine>();
         arrPickupCircleIndex = new ArrayList<CircleIndex>();
         arrColorCircleIndex = new ArrayList<CircleIndex>();
+        lineMap = new HashMap<CircleIndex, ArrayList<CircleIndex>>();
         genCircleIndex();
         genCircleLines();
     }
@@ -31,34 +36,53 @@ public class GraphPanel extends JPanel {
         //ArrayList arrList = new ArrayList();
 
         /*
-        for (int i = 0; i < 10; i++) {
-            //g.drawOval(2*f_r + i*f_r, 2*f_r + i*f_r, f_r*2, f_r*2);
-            g.fillOval(4 * f_r + i * 10 * f_r - f_r, 4 * f_r + i * 10 * f_r - f_r, f_r * 4, f_r * 4);
+        for (int x = 0; x < 10; x++) {
+            //g.drawOval(2*f_r + x*f_r, 2*f_r + x*f_r, f_r*2, f_r*2);
+            g.fillOval(4 * f_r + x * 10 * f_r - f_r, 4 * f_r + x * 10 * f_r - f_r, f_r * 4, f_r * 4);
         }
          */
         for (int i = 0; i < arrCircleIndex.size(); i++) {
-            g.fillOval(4 * f_r + arrCircleIndex.get(i).i * 10 * f_r - f_r, 4 * f_r + arrCircleIndex.get(i).j * 10 * f_r - f_r, f_r * 4, f_r * 4);
+            g.fillOval(4 * f_r + arrCircleIndex.get(i).x * 10 * f_r - f_r, 4 * f_r + arrCircleIndex.get(i).y * 10 * f_r - f_r, f_r * 4, f_r * 4);
         }
 
         for (int i = 0; i < arrCircleLines.size(); i++) {
             g.drawLine(
-                    4 * f_r + arrCircleLines.get(i).beg.i * 10 * f_r,
-                    4 * f_r + arrCircleLines.get(i).beg.j * 10 * f_r,
-                    4 * f_r + arrCircleLines.get(i).end.i * 10 * f_r,
-                    4 * f_r + arrCircleLines.get(i).end.j * 10 * f_r);
+                    4 * f_r + arrCircleLines.get(i).beg.x * 10 * f_r,
+                    4 * f_r + arrCircleLines.get(i).beg.y * 10 * f_r,
+                    4 * f_r + arrCircleLines.get(i).end.x * 10 * f_r,
+                    4 * f_r + arrCircleLines.get(i).end.y * 10 * f_r);
         }
 
+        for (int i = 0; i < arrCircleDistrubLines.size(); i++) {
+            g.drawLine(
+                    4 * f_r + arrCircleDistrubLines.get(i).beg.x * 10 * f_r,
+                    4 * f_r + arrCircleDistrubLines.get(i).beg.y * 10 * f_r,
+                    4 * f_r + arrCircleDistrubLines.get(i).end.x * 10 * f_r,
+                    4 * f_r + arrCircleDistrubLines.get(i).end.y * 10 * f_r);
+        }
+                
+        Color originalColor = g.getColor();
+        g.setColor(Color.RED);
+        for (int i = 0; i < arrRouteLines.size(); i++) {
+            g.drawLine(
+                    4 * f_r + arrRouteLines.get(i).beg.x * 10 * f_r,
+                    4 * f_r + arrRouteLines.get(i).beg.y * 10 * f_r,
+                    4 * f_r + arrRouteLines.get(i).end.x * 10 * f_r,
+                    4 * f_r + arrRouteLines.get(i).end.y * 10 * f_r);
+        }
+        g.setColor(originalColor);
+
         for (int i = 0; i < arrColorCircleIndex.size(); i++) {
-            Color originalColor = g.getColor();
+            originalColor = g.getColor();
             g.setColor(Color.ORANGE);
-            g.fillOval(4 * f_r + arrColorCircleIndex.get(i).i * 10 * f_r - f_r, 4 * f_r + arrColorCircleIndex.get(i).j * 10 * f_r - f_r, f_r * 4, f_r * 4);
+            g.fillOval(4 * f_r + arrColorCircleIndex.get(i).x * 10 * f_r - f_r, 4 * f_r + arrColorCircleIndex.get(i).y * 10 * f_r - f_r, f_r * 4, f_r * 4);
             g.setColor(originalColor);
         }
 
         for (int i = 0; i < arrPickupCircleIndex.size(); i++) {
-            Color originalColor = g.getColor();
+            originalColor = g.getColor();
             g.setColor(Color.ORANGE);
-            g.fillOval(4 * f_r + arrPickupCircleIndex.get(i).i * 10 * f_r - f_r, 4 * f_r + arrPickupCircleIndex.get(i).j * 10 * f_r - f_r, f_r * 4, f_r * 4);
+            g.fillOval(4 * f_r + arrPickupCircleIndex.get(i).x * 10 * f_r - f_r, 4 * f_r + arrPickupCircleIndex.get(i).y * 10 * f_r - f_r, f_r * 4, f_r * 4);
             g.setColor(originalColor);
         }
     }
@@ -82,10 +106,33 @@ public class GraphPanel extends JPanel {
         if (arrCircleIndex.size() > 1) {
             for (int i = 0; i < arrCircleIndex.size(); i++) {
                 if (i != arrCircleIndex.size() - 1) {
-                    arrCircleLines.add(new CircleLine(arrCircleIndex.get(i), arrCircleIndex.get(i + 1)));
+                    arrCircleLines.add(new CircleLine(arrCircleIndex.get(i), arrCircleIndex.get(i+1)));
+                    //arrCircleLines.add(new CircleLine(arrCircleIndex.get(i+1), arrCircleIndex.get(i)));
+                    ArrayList<CircleIndex> arr2CircleX, arr2CircleY = null;
+                    arr2CircleX = lineMap.get(arrCircleIndex.get(i));
+                    arr2CircleY = lineMap.get(arrCircleIndex.get(i + 1));
+
+                    if (null == arr2CircleX) {
+                        arr2CircleX = new ArrayList<CircleIndex>();
+                    }
+
+                    if (null == arr2CircleY) {
+                        arr2CircleY = new ArrayList<CircleIndex>();
+                    }
+
+                    arr2CircleX.add(arrCircleIndex.get(i + 1));
+                    lineMap.put(arrCircleIndex.get(i), arr2CircleX);
+
+                    arr2CircleY.add(arrCircleIndex.get(i));
+                    //lineMap.put(arrCircleIndex.get(i + 1), arr2CircleY);
+
                 }
             }
         }
+        
+
+    arrCircleDistrubLines.add(new CircleLine(arrCircleIndex.get(1),arrCircleIndex.get(arrCircleIndex.size()-1)));
+           
     }
 
     public void refreshCircleIndex() {
@@ -93,6 +140,9 @@ public class GraphPanel extends JPanel {
         arrColorCircleIndex.clear();
         arrPickupCircleIndex.clear();
         arrCircleLines.clear();
+        arrRouteLines.clear();
+        arrCircleDistrubLines.clear();
+        lineMap.clear();
         genCircleIndex();
         genCircleLines();
         repaint();
@@ -101,8 +151,8 @@ public class GraphPanel extends JPanel {
     public void mouseOnCircleCheck(int x, int y) {
         boolean bRepaint = false;
         for (int i = 0; i < arrCircleIndex.size(); i++) {
-            double dx = ((double) (4 * f_r + arrCircleIndex.get(i).i * 10 * f_r) - (double) x);
-            double dy = ((double) (4 * f_r + arrCircleIndex.get(i).j * 10 * f_r) - (double) y);
+            double dx = ((double) (4 * f_r + arrCircleIndex.get(i).x * 10 * f_r) - (double) x);
+            double dy = ((double) (4 * f_r + arrCircleIndex.get(i).y * 10 * f_r) - (double) y);
             if (dx * dx + dy * dy <= (f_r + 6) * (f_r + 6)) {
                 //change color
                 arrColorCircleIndex.add(arrCircleIndex.get(i));
@@ -124,46 +174,89 @@ public class GraphPanel extends JPanel {
     public void setPickupCircle(int x, int y) {
         boolean bRepaint = false;
         if (arrColorCircleIndex.size() > 0) {
-            double dx = ((double) (4 * f_r + arrColorCircleIndex.get(0).i * 10 * f_r) - (double) x);
-            double dy = ((double) (4 * f_r + arrColorCircleIndex.get(0).j * 10 * f_r) - (double) y);
+            double dx = ((double) (4 * f_r + arrColorCircleIndex.get(0).x * 10 * f_r) - (double) x);
+            double dy = ((double) (4 * f_r + arrColorCircleIndex.get(0).y * 10 * f_r) - (double) y);
             if (dx * dx + dy * dy <= (f_r + 6) * (f_r + 6)) {
                 //arrPickupCircleIndex.add(new CircleIndex(arrColorCircleIndex.get(0)));
-                if(arrPickupCircleIndex.size() < 2) {
+                if (arrPickupCircleIndex.size() < 2) {
                     arrPickupCircleIndex.add(arrColorCircleIndex.get(0));
                     arrColorCircleIndex.clear();
                     bRepaint = true;
-                }                
+                }
             }
         }
 
         if (bRepaint) {
             //logic for find the route.
+            if (2 == arrPickupCircleIndex.size()) {
+                CircleIndex circleBeg = arrPickupCircleIndex.get(0), circleEnd = arrPickupCircleIndex.get(1);
+                for(int i=0; i<arrCircleIndex.size(); i++) {
+                    if(circleEnd.equals(arrCircleIndex.get(i))) {
+                        circleBeg = arrPickupCircleIndex.get(1);
+                        circleEnd = arrPickupCircleIndex.get(0);
+                        break;
+                    } else if(circleBeg.equals(arrCircleIndex.get(i))) {
+                        break;
+                    }
+                }
+                         
+                findRoute(circleBeg, circleEnd, null);
+            }
+
             repaint();
         }
     }
-    
-    public void findRoute() {
-        
+
+    public void findRoute(CircleIndex beg, CircleIndex end, CircleIndex preCircle) {
+        //static int limit_count = 0;
+        if (beg == end) {
+            return;
+        }
+        ArrayList<CircleIndex> arr2Circle = lineMap.get(beg);
+        for (int i = 0; i < arr2Circle.size(); i++) {
+            if (null == preCircle || preCircle != arr2Circle.get(i)) {
+                arrRouteLines.add(new CircleLine(beg, arr2Circle.get(i)));
+                preCircle = beg;
+                beg = arr2Circle.get(i);
+                break;
+            }
+        }
+           
+        findRoute(beg, end, preCircle);
+
     }
 
     ArrayList<CircleIndex> arrCircleIndex;
     ArrayList<CircleIndex> arrColorCircleIndex;
     ArrayList<CircleIndex> arrPickupCircleIndex;
     ArrayList<CircleLine> arrCircleLines;
+    ArrayList<CircleLine> arrCircleDistrubLines;
+    ArrayList<CircleLine> arrRouteLines;
+    Map<CircleIndex, ArrayList<CircleIndex>> lineMap;
     final int f_r = 6;
 }
 
 class CircleIndex {
+
     CircleIndex(CircleIndex rhs) {
-        this.i = rhs.i;
-        this.j = rhs.j;
+        this.x = rhs.x;
+        this.y = rhs.y;
     }
+    
+    boolean equals(CircleIndex rhs) {
+        boolean ret = false;
+        if(rhs.x == this.x && rhs.y == this.y) {
+            ret = true;
+        }
+        return ret;
+    }
+
     CircleIndex(int i, int j) {
-        this.i = i;
-        this.j = j;
+        this.x = i;
+        this.y = j;
     }
-    int i;
-    int j;
+    int x;
+    int y;
 }
 
 class CircleLine {
