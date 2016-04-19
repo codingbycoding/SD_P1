@@ -33,58 +33,31 @@ public class GraphPanel extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        //ArrayList arrList = new ArrayList();
-
-        /*
-        for (int x = 0; x < 10; x++) {
-            //g.drawOval(2*f_r + x*f_r, 2*f_r + x*f_r, f_r*2, f_r*2);
-            g.fillOval(4 * f_r + x * 10 * f_r - f_r, 4 * f_r + x * 10 * f_r - f_r, f_r * 4, f_r * 4);
-        }
-         */
+        
         for (int i = 0; i < arrCircleIndex.size(); i++) {
-            g.fillOval(4 * f_r + arrCircleIndex.get(i).x * 10 * f_r - f_r, 4 * f_r + arrCircleIndex.get(i).y * 10 * f_r - f_r, f_r * 4, f_r * 4);
+            arrCircleIndex.get(i).draw(g);
         }
 
         for (int i = 0; i < arrCircleLines.size(); i++) {
-            g.drawLine(
-                    4 * f_r + arrCircleLines.get(i).beg.x * 10 * f_r,
-                    4 * f_r + arrCircleLines.get(i).beg.y * 10 * f_r,
-                    4 * f_r + arrCircleLines.get(i).end.x * 10 * f_r,
-                    4 * f_r + arrCircleLines.get(i).end.y * 10 * f_r);
+            arrCircleLines.get(i).draw(g);
         }
 
         for (int i = 0; i < arrCircleDistrubLines.size(); i++) {
-            g.drawLine(
-                    4 * f_r + arrCircleDistrubLines.get(i).beg.x * 10 * f_r,
-                    4 * f_r + arrCircleDistrubLines.get(i).beg.y * 10 * f_r,
-                    4 * f_r + arrCircleDistrubLines.get(i).end.x * 10 * f_r,
-                    4 * f_r + arrCircleDistrubLines.get(i).end.y * 10 * f_r);
+           arrCircleDistrubLines.get(i).draw(g);
         }
                 
-        Color originalColor = g.getColor();
-        g.setColor(Color.RED);
         for (int i = 0; i < arrRouteLines.size(); i++) {
-            g.drawLine(
-                    4 * f_r + arrRouteLines.get(i).beg.x * 10 * f_r,
-                    4 * f_r + arrRouteLines.get(i).beg.y * 10 * f_r,
-                    4 * f_r + arrRouteLines.get(i).end.x * 10 * f_r,
-                    4 * f_r + arrRouteLines.get(i).end.y * 10 * f_r);
-        }
-        g.setColor(originalColor);
-
-        for (int i = 0; i < arrColorCircleIndex.size(); i++) {
-            originalColor = g.getColor();
-            g.setColor(Color.ORANGE);
-            g.fillOval(4 * f_r + arrColorCircleIndex.get(i).x * 10 * f_r - f_r, 4 * f_r + arrColorCircleIndex.get(i).y * 10 * f_r - f_r, f_r * 4, f_r * 4);
-            g.setColor(originalColor);
+            arrRouteLines.get(i).draw(g);
         }
 
-        for (int i = 0; i < arrPickupCircleIndex.size(); i++) {
-            originalColor = g.getColor();
-            g.setColor(Color.ORANGE);
-            g.fillOval(4 * f_r + arrPickupCircleIndex.get(i).x * 10 * f_r - f_r, 4 * f_r + arrPickupCircleIndex.get(i).y * 10 * f_r - f_r, f_r * 4, f_r * 4);
-            g.setColor(originalColor);
-        }
+
+//        for (int i = 0; i < arrColorCircleIndex.size(); i++) {
+//            arrColorCircleIndex.get(i).draw(g);
+//        }
+//
+//        for (int i = 0; i < arrPickupCircleIndex.size(); i++) {
+//            arrPickupCircleIndex.get(i).draw(g);
+//        }
     }
 
     public void genCircleIndex() {
@@ -95,7 +68,7 @@ public class GraphPanel extends JPanel {
         for (int i = 0; i < arrNumEachRow.size(); i++) {
             ArrayList<Integer> arrRowEach = TestUtils.shuffle0To9();
             for (int k = arrNumEachRow.get(i), j = 0; k > 0; k--, j++) {
-                CircleIndex index = new CircleIndex(arrRows.get(i), arrRowEach.get(j));
+                CircleIndex index = new CircleIndex(arrRows.get(i), arrRowEach.get(j), Color.BLACK);
                 arrCircleIndex.add(index);
             }
         }
@@ -106,7 +79,7 @@ public class GraphPanel extends JPanel {
         if (arrCircleIndex.size() > 1) {
             for (int i = 0; i < arrCircleIndex.size(); i++) {
                 if (i != arrCircleIndex.size() - 1) {
-                    arrCircleLines.add(new CircleLine(arrCircleIndex.get(i), arrCircleIndex.get(i+1)));
+                    arrCircleLines.add(new CircleLine(arrCircleIndex.get(i), arrCircleIndex.get(i+1), Color.BLACK));
                     //arrCircleLines.add(new CircleLine(arrCircleIndex.get(i+1), arrCircleIndex.get(i)));
                     ArrayList<CircleIndex> arr2CircleX, arr2CircleY = null;
                     arr2CircleX = lineMap.get(arrCircleIndex.get(i));
@@ -131,7 +104,7 @@ public class GraphPanel extends JPanel {
         }
         
 
-    arrCircleDistrubLines.add(new CircleLine(arrCircleIndex.get(1),arrCircleIndex.get(arrCircleIndex.size()-1)));
+    arrCircleDistrubLines.add(new CircleLine(arrCircleIndex.get(1),arrCircleIndex.get(arrCircleIndex.size()-1), Color.BLACK));
            
     }
 
@@ -155,6 +128,7 @@ public class GraphPanel extends JPanel {
             double dy = ((double) (4 * f_r + arrCircleIndex.get(i).y * 10 * f_r) - (double) y);
             if (dx * dx + dy * dy <= (f_r + 6) * (f_r + 6)) {
                 //change color
+                arrCircleIndex.get(i).setColor(Color.ORANGE);
                 arrColorCircleIndex.add(arrCircleIndex.get(i));
                 bRepaint = true;
                 break;
@@ -162,6 +136,10 @@ public class GraphPanel extends JPanel {
         }
 
         if (!bRepaint && arrColorCircleIndex.size() > 0) {
+            for(int i=0; i<arrColorCircleIndex.size(); i++) {
+                arrColorCircleIndex.get(i).setColor(Color.BLACK);
+            }
+            
             arrColorCircleIndex.clear();
             bRepaint = true;
         }
@@ -179,7 +157,9 @@ public class GraphPanel extends JPanel {
             if (dx * dx + dy * dy <= (f_r + 6) * (f_r + 6)) {
                 //arrPickupCircleIndex.add(new CircleIndex(arrColorCircleIndex.get(0)));
                 if (arrPickupCircleIndex.size() < 2) {
-                    arrPickupCircleIndex.add(arrColorCircleIndex.get(0));
+                    arrColorCircleIndex.get(0).setColor(Color.ORANGE);                    
+                    CircleIndex circleIndex = arrColorCircleIndex.get(0);                    
+                    arrPickupCircleIndex.add(circleIndex);     
                     arrColorCircleIndex.clear();
                     bRepaint = true;
                 }
@@ -215,7 +195,7 @@ public class GraphPanel extends JPanel {
         ArrayList<CircleIndex> arr2Circle = lineMap.get(beg);
         for (int i = 0; i < arr2Circle.size(); i++) {
             if (null == preCircle || preCircle != arr2Circle.get(i)) {
-                arrRouteLines.add(new CircleLine(beg, arr2Circle.get(i)));
+                arrRouteLines.add(new CircleLine(beg, arr2Circle.get(i), Color.RED));
                 preCircle = beg;
                 beg = arr2Circle.get(i);
                 break;
@@ -237,11 +217,6 @@ public class GraphPanel extends JPanel {
 }
 
 class CircleIndex {
-
-    CircleIndex(CircleIndex rhs) {
-        this.x = rhs.x;
-        this.y = rhs.y;
-    }
     
     boolean equals(CircleIndex rhs) {
         boolean ret = false;
@@ -251,21 +226,51 @@ class CircleIndex {
         return ret;
     }
 
-    CircleIndex(int i, int j) {
+    CircleIndex(int i, int j, Color color) {
         this.x = i;
         this.y = j;
+        this.color = color;
     }
+    
+    void setColor(Color color) {
+        this.color = color;
+    }
+    
     int x;
     int y;
+    final int f_r = 6;
+    Color color;
+    
+    void draw(Graphics g) {
+        g.setColor(color);
+        g.fillOval(4 * f_r + x * 10 * f_r - f_r, 4 * f_r + y * 10 * f_r - f_r, f_r * 4, f_r * 4);
+        
+    }
 }
 
 class CircleLine {
 
-    CircleLine(CircleIndex beg, CircleIndex end) {
+    CircleLine(CircleIndex beg, CircleIndex end, Color color) {
         this.beg = beg;
         this.end = end;
+        this.color = color;
     }
+    
+    void setColor(Color color) {
+        this.color = color;
+    }
+    
+    void draw(Graphics g) {
+        g.setColor(color);
+        g.drawLine(4 * f_r + beg.x * 10 * f_r,
+                4 * f_r + beg.y * 10 * f_r,
+                4 * f_r + end.x * 10 * f_r,
+                4 * f_r + end.y * 10 * f_r);
 
+    }
+    
     CircleIndex beg;
     CircleIndex end;
+    final int f_r = 6;
+    Color color;
 }
